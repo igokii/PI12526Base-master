@@ -30,7 +30,7 @@ public class TestEjercicio3 {
 	public static String ejercicio3(Integer x, Integer y, Integer z) {
 		String res = "";
 		res += String.format("Entrada: %s, %s, %s\n", x, y, z);
-		res += "1. Iterativo: " + Ejercicio3.iterativo(x, y, z) + "\n";
+		res += "1. Iterativo:             " + Ejercicio3.iterativo(x, y, z) + "\n";
 		res += "2. Recursivo sin memoria: " + Ejercicio3.recursivo_sin_memoria(x, y, z) + "\n";
 		res += "3. Recursivo con memoria: " + Ejercicio3.recursivo_con_memoria(x, y, z) + "\n";
 		return res;

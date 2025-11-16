@@ -3,25 +3,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 public class Ejercicio2 {
-// Recursivo No Final
-	public static List<Integer> f_RNF(Integer a, Integer b) {
-		if ((a < 2 || b < 2)) {
-			List<Integer> res = new ArrayList<>();
-			res.add(a * b);
-			return res;
-		}
-		else if ((a > b)) {
-			List<Integer> res = f_RNF(a % b, b - 1);
-			res.add(a);
-			return res;
-		}
-		else {
-			List<Integer> res = f_RNF(a - 2, b / 2);
-			res.add(b);
-			return res;
-		}
-	}
-// Iterativo
+	
+	// Iterativo
 	public static List<Integer> f_it(Integer a, Integer b) {
 		List<Integer> res = new ArrayList<>();
 		while (!(a < 2 || b < 2)) {
@@ -36,48 +19,91 @@ public class Ejercicio2 {
 				b = b / 2;
 			}
 		}
-		if (a < 2 || b < 2) {
 			res.addFirst(a * b);
+		return res;
+	}
+
+// recursivo no final:
+	public static List<Integer> f_RNF(Integer a, Integer b) {
+		List<Integer> res = null;
+		if (a < 2 || b < 2) {
+			res = new ArrayList<>();
+			res.add(a * b);
+		} else if (a > b) {
+			res = f_RNF(a % b, b - 1);
+			res.add(a);
+		} else {
+			res = f_RNF(a - 2, b / 2);
+			res.add(b);
 		}
 		return res;
 	}
-// Recursivo Final
+//	// Recursivo Final primer intento. no me gusta porque devuelve acum (que contiene la función recursiva) en vez de actualizar acum y devolver la funcion
+//	public static List<Integer> f_RF1(Integer a, Integer b) {
+//		List<Integer> acum = new ArrayList<>();
+//		return f_RFAux(a, b, acum);
+//	}
+//	private static List<Integer> f_RFAux(Integer a, Integer b, List<Integer> acum) {
+//		if (a < 2 || b < 2) {
+//			acum.add(a * b);
+//			return acum;
+//		}
+//		else if ((a > b)) {
+//			acum = f_RFAux(a % b, b - 1, acum);
+//			acum.add(a);
+//			return acum;
+//		}
+//		else {
+//			acum = (f_RFAux(a - 2, b / 2, acum));
+//			acum.add(b);
+//			return acum;
+//		}
+//	}
+ // intento 2 de recursivo final, me gusta más porque se parece más a los ejemplos
 	public static List<Integer> f_RF(Integer a, Integer b) {
-		List<Integer> acum = new ArrayList<>();
-		return f_RFAux(a, b, acum);
+		return RecFinal(new ArrayList<>(), a, b);
 	}
-	private static List<Integer> f_RFAux(Integer a, Integer b, List<Integer> acum) {
-		if (a < 2 || b < 2) {
-			acum.add(a * b);
-			return acum;
+	private static List<Integer> RecFinal (List<Integer> ac, Integer a, Integer b) {
+		if (a<2 || b<2) {
+			ac.addFirst(a*b);
+			return ac;
 		}
-		else if ((a > b)) {
-			acum = f_RFAux(a % b, b - 1, acum);
-			acum.add(a);
-			return acum;
+		else if (a>b) {
+			ac.addFirst(a);
+			return RecFinal(ac, a%b, b-1);
 		}
 		else {
-			acum = (f_RFAux(a - 2, b / 2, acum));
-			acum.add(b);
-			return acum;
+			ac.addFirst(b);
+			return RecFinal(ac, a-2, b/2);
 		}
-	}
-// funcional
-	private static record Tupla(List<Integer> ac, Integer a, Integer b) { // nuestro ac va aser una lista
-		public static Tupla of(List<Integer> ba, Integer a, Integer b) {
-			return new Tupla(ba, a, b);
-		}
-		public static Tupla first(Integer a, Integer b) {
-			return of(new ArrayList<>(), a, b);
-		}
-		public Tupla next() {
-			return of(Stream.concat(ac.stream(), (new ArrayList<>(a)).stream()).toList(), a / 2, b - 2);
-		}
-	} // HACER FUNCIONAL
-	public static List<Integer> f_funcional(Integer a, Integer b) {
-		return Stream
-				.iterate(Tupla.of(a, b), e -> (a < 2 || b < 2), e -> e.next())
-				.get();
 	}
 
+	// funcional:
+	public static record Tupla(List<Integer> ac, Integer a, Integer b) {
+		private static Tupla of(List<Integer> ac, Integer a, Integer b) {
+			return new Tupla(ac, a, b);
+		}
+		private static Tupla first(Integer a, Integer b) {
+			return of(new ArrayList<>(), a, b);
+		}
+		private Tupla nx() {
+			if (a > b) {
+				ac.addFirst(a);
+				return of(ac, a % b, b - 1);
+			} else {
+				ac.addFirst(b);
+				return of(ac, a - 2, b / 2);
+			}
+		}
+	}
+
+	public static List<Integer> f_funcional(Integer a, Integer b) {
+		Tupla tupla = Stream.iterate(Tupla.first(a, b), t -> t.nx())
+		        .filter(t -> (t.a() < 2 || t.b() < 2))
+			    .findFirst()
+			    .get();
+		List<Integer> res = tupla.ac();
+		res.addFirst(tupla.a()*tupla.b());
+		return res;
+	}	
 }
